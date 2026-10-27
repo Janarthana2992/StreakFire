@@ -8,7 +8,7 @@ import { fmt, fmtMins, relDay, shift, today } from '../../lib/dates';
 import { CATS, COLORS, info, isDone, streak, tasksFor, todosDue } from '../../lib/domain';
 import { parseQuick } from '../../lib/parse';
 import { toggleRest, undoToast } from '../../lib/actions';
-import { normalize, seed, blank, uid } from '../../lib/seed';
+import { normalize, blank, uid } from '../../lib/seed';
 import { askNotify, notify, notifyPermission } from '../../lib/notify';
 import { cloudConfigured } from '../../lib/firebase-config';
 import { PALETTES } from '../../lib/palettes';
@@ -245,7 +245,6 @@ export function SettingsDialog() {
         <div className="acts" style={{ justifyContent: 'flex-start' }}>
           <button className="btn sm" onClick={() => void exportData()}>Copy backup</button>
           <label className="btn sm">Restore from file<input type="file" accept="application/json,.json" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importFile(f); }} /></label>
-          <button className="btn sm" onClick={() => { const prev = data; setData({ ...seed(), theme: data.theme, palette: data.palette }); close(); undoToast('Example data loaded', prev); }}>Load example data</button>
           <button className="btn sm danger" onClick={() => {
             if (!armed) { setArmed(true); setTimeout(() => setArmed(false), 3500); return; }
             const prev = data; setData({ ...blank(data.name), theme: data.theme, palette: data.palette }); close(); undoToast('Everything erased', prev);

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Data } from '../lib/types';
-import { blank, normalize, seed } from '../lib/seed';
+import { blank, normalize } from '../lib/seed';
 import { cloudConfigured } from '../lib/firebase-config';
 
 export const STORAGE_KEY = 'streakfire.v3'; // same key as v3, so existing local data carries over
@@ -8,7 +8,19 @@ export type SyncState = 'local' | 'saving' | 'saved' | 'offline' | 'error';
 export type AuthState = 'local' | 'loading' | 'signed-out' | 'denied' | 'error' | 'ready';
 
 function loadLocal(): Data | null {
-  try { const r = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('streakfire.v2'); if (r) return normalize(JSON.parse(r)); } catch { /* storage unavailable */ }
+  try {
+    const r = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('streakfire.v2');
+    if (r) {
+      const parsed = JSON.parse(r);
+      // Discard previously loaded demo/sample data so the user starts completely clean
+      if (parsed && typeof parsed === 'object' && (parsed as { sample?: boolean }).sample) {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem('streakfire.v2');
+        return null;
+      }
+      return normalize(parsed);
+    }
+  } catch { /* storage unavailable */ }
   return null;
 }
 
@@ -24,7 +36,7 @@ interface AppStore {
 }
 
 export const useApp = create<AppStore>((set, get) => ({
-  data: loadLocal() ?? (cloudConfigured ? blank() : seed()),
+  data: loadLocal() ?? blank(),
   sync: 'local',
   auth: cloudConfigured ? 'loading' : 'local',
   authMessage: '',
