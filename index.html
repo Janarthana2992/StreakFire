@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>StreakFire</title>
+    <meta name="description" content="Daily routines, todos, notes and focus sessions, with streaks that keep you going." />
+    <meta name="theme-color" content="#F6F7FB" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700;800&display=swap" />
+    <script>
+      // apply the saved theme before first paint (no flash)
+      try { var d = JSON.parse(localStorage.getItem('streakfire.v3') || '{}'), p = d.theme || 'system';
+        document.documentElement.setAttribute('data-palette', d.palette || 'indigo');
+        document.documentElement.setAttribute('data-theme', p === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : p); } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+      <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--grad-a)"/><stop offset=".6" style="stop-color:var(--grad-b)"/><stop offset="1" style="stop-color:var(--grad-c)"/></linearGradient>
+      <linearGradient id="medalGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--grad-a)"/><stop offset=".55" style="stop-color:var(--grad-b)"/><stop offset="1" style="stop-color:var(--grad-c)"/></linearGradient>
+    </defs></svg>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

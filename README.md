@@ -1,0 +1,116 @@
+# StreakFire
+
+A daily planner and habit tracker for routines, one-off tasks, todos, notes and focus sessions.
+Streaks keep you consistent, and it works on phone, tablet and desktop.
+Built with **React 19 + TypeScript**, backed by **Firebase** (free plan), and installable as an app.
+
+## Tech stack
+
+| Layer | Choice | Why |
+|---|---|---|
+| Build | **Vite 8** (Rolldown) | Instant dev server, fast production builds |
+| UI | **React 19** + **TypeScript 7** | Typed components, strict compiler settings |
+| Styling | **Tailwind CSS v4** + design tokens | CSS-first config; light and dark themes from one token set |
+| State | **Zustand 5** | Tiny global stores: app data, UI, focus timer, theme |
+| Routing | **React Router 8** (hash routing) | Works on any static host |
+| Animation | **Motion** (`motion/react`) | Page transitions, list reordering, progress animations |
+| Dialogs | **Radix UI Dialog** | Accessible: focus trap, Escape to close, screen-reader labels |
+| Command palette | **cmdk** | `Ctrl/⌘ K` search and commands |
+| Toasts | **Sonner** | Notifications with an Undo action |
+| Charts | **Recharts 3** | Insights charts, loaded only on that page |
+| Icons | **lucide-react** | |
+| Dates | Small typed helpers (`src/lib/dates.ts`), **date-fns** available | |
+| Backend | **Firebase 13** modular SDK: Auth (Google), Cloud Firestore (offline cache), Hosting | Free Spark plan; loaded only when configured |
+| PWA | **vite-plugin-pwa** (Workbox) | Install to home screen, works offline |
+| Tests | **Vitest** | Streak rules, routine scheduling and the quick-add parser |
+| Lint | **oxlint** | |
+
+## Features
+- **5 colour themes** (Indigo, Emerald, Ocean, Sunset, Rose), each with System, Light or Dark mode. Pick one in Settings or with `Ctrl/⌘ K`.
+- **Today:** a progress ring, a week strip, a timeline with a live "Now" line, an "Up next" card, due and overdue todos, focus shortcuts.
+- **Quick add in plain English:** `Standup 10am weekdays`, `Client call 3pm tomorrow !high`, `Gym 7am every mon wed fri`.
+- **Repeating tasks:** every day, weekdays, or custom days. Edit a routine any time. Stopping a routine keeps its history.
+- **Task editor:** one-time or repeating, time, priority, a checklist of steps, notes. Ticking every step completes the task.
+- **Plan:** a month calendar and a week planner.
+- **Rest days:** mark a day off and it never breaks your streak.
+- **Streak rule:** a day counts at 100%, 80% or 60% done. Days with no tasks are skipped.
+- **Carry-over and wrap-up:** move yesterday's unfinished tasks to today. At the end of the day, review it, move what's left to tomorrow, and save a note.
+- **Focus timer:** 15–60 minute sessions linked to a task. It survives a reload and shows the time in the browser tab.
+- **Todos:** grouped by overdue, today, upcoming and someday.
+- **Notes:** categories, colours, pinning, search.
+- **Insights:** a 6-month heatmap, charts, best weekday, levels, XP and 12 badges.
+- **Reminders:** browser notifications at each task's time.
+- **Other:** undo on every delete, backup and restore, keyboard shortcuts.
+
+**Shortcuts:**
+- `Ctrl/⌘ K` search
+- `N` task
+- `T` todo
+- `J` note
+- `F` focus
+- `W` wrap up
+- `1–5` pages
+- `?` help
+
+## Project structure
+```
+src/
+  main.tsx               app entry; starts Firebase sync only if configured
+  App.tsx                routes, global dialogs, palette, focus widget, toasts
+  index.css              Tailwind v4 + design tokens + component classes
+  pages/                 Today, Plan, Todos, Notes, Insights
+  components/            Layout (sidebar/top bar/tab bar), TaskRow, Composer, Sheet (Radix dialog),
+                         CommandPalette (cmdk), FocusWidget, Gate (sign-in), ui primitives
+  components/dialogs/    TaskEditor, Day, Todo, Note, Settings, Wrap-up, Quick add, Shortcuts
+  store/                 Zustand stores: app data, UI, focus timer, theme
+  hooks/useGlobal.ts     keyboard shortcuts, reminders
+  lib/                   types, dates, domain rules (streaks, XP, badges), quick-add parser,
+                         seed data, Firebase sync (cloud.ts), notifications, confetti
+  lib/logic.test.ts      unit tests
+firestore.rules          only your Google account can read/write your data
+firebase.json            hosting (dist/) + rules
+```
+
+## Run it
+```bash
+npm install
+npm run dev        # http://localhost:5173  (local mode, example data)
+npm test           # unit tests
+npm run build      # production build in dist/
+```
+Requires Node 20.19+ or 22.12+.
+
+## Connect the free Firebase backend
+1. **Create a project** at https://console.firebase.google.com.
+2. **Turn on sign-in:** under **Authentication > Sign-in method**, enable **Google**.
+3. **Create the database:** under **Firestore Database**, click **Create database**. Use production mode and the `asia-south1` (Mumbai) location.
+4. **Copy your keys:** in **Project settings > Your apps**, add a Web app `</>`. Copy `.env.example` to `.env.local` and paste in the values.
+5. **Lock it to you:** in `firestore.rules`, replace `YOUR_EMAIL@gmail.com` with your Google account.
+6. **Set the project ID:** put your project ID in `.firebaserc`.
+7. **Deploy:**
+   ```bash
+   npm install -g firebase-tools
+   firebase login
+   npm run deploy          # builds, then deploys hosting + rules
+   ```
+8. **Open the app** at the `https://<project>.web.app` link and sign in.
+   - On a phone, use **Add to Home Screen**.
+   - On a desktop, click the install icon in the address bar.
+
+**Moving from earlier versions.** Data uses the same format as StreakFire v2 and v3:
+- **Same browser:** local data is picked up automatically.
+- **Same Firebase project:** your existing data loads as soon as you sign in.
+
+### Test against the Firebase emulators (optional)
+```bash
+firebase emulators:start --only auth,firestore --project demo-streakfire
+VITE_FIREBASE_API_KEY=demo VITE_FIREBASE_PROJECT_ID=demo-streakfire VITE_USE_EMULATOR=1 npm run dev
+```
+
+## Free plan limits (Spark, no credit card)
+- **Firestore:** 1 GiB stored, 50,000 reads and 20,000 writes per day.
+- **Hosting:** 10 GB storage and 360 MB transfer per day.
+
+## Known limits
+- **Reminders need the app running.** They fire while the app is open or installed and running. Push notifications when it's fully closed need Cloud Functions, which is on the pay-as-you-go Blaze plan.
+- **All data is one Firestore document.** If two devices edit while both are offline, the last one to sync wins.
